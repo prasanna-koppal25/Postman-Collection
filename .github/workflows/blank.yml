@@ -32,5 +32,5 @@ jobs:
         run: npm install -g newman
 
       - name: Run Postman Collection
-        run: newman postman/collections/EDA.json
+        run: newman "postman/collections/EDA.json"
 
