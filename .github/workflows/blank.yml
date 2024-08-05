@@ -4,14 +4,16 @@ on: push
 
 jobs:
   automated-api-tests:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Postman CLI
         run: |
-          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+          powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.PMAK-66b0cdfc4d694c0001d9919f-376f1ea908789827aae4be16d93d2a944a }}
       - name: Run API tests
         run: |
           postman collection run "${{ github.workspace }}/postman/collections/EDA.json" --integration-id "166860-${{ github.run_id }}"
+          # Lint your API using Postman CLI
+          postman api lint 1f84a52b-26c7-4030-9bb1-66d25966f976 --integration-id 166860
