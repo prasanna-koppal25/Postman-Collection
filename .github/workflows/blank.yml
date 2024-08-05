@@ -1,41 +1,17 @@
-name: CI
-on: workflow_dispatch
+name: Automated API tests using Postman CLI
+
+on: push
 
 jobs:
-  test-api:
+  automated-api-tests:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Create dir
+      - name: Install Postman CLI
         run: |
-          mkdir TestArtifact
-
-      # Install Node on the runner
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16.x'
-
-
-      # Install Newman globally, the reporter for Slack, and install the HTML extra reporter
-      - name: Install Newman
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.PMAK-66b0cdfc4d694c0001d9919f-376f1ea908789827aae4be16d93d2a944a }}
+      - name: Run API tests
         run: |
-          npm install -g newman
-          npm install -g newman-reporter-slackreporter
-          npm install -g newman-reporter-html
-          npm install -g newman-htmlextra
-
-      # Run the POSTMAN Collection
-      - name: Run Tests
-        run: |
-          newman run ".postman/postman/collections/EDA.json" -r cli,html --reporter-html-export testArtifacts/htmlreport.html
-          
-      # Upload the report to TestArtifact directory
-      - name: Output the result
-        uses: actions/upload-artifact@v3
-        with:
-          name: Reports
-          path: TestArtifact
-
+          postman collection run "${{ github.workspace }}/postman/collections/EDA.json" --integration-id "166860-${{ github.run_id }}"
